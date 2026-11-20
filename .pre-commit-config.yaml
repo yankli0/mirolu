@@ -1,0 +1,13 @@
+repos:
+  - repo: local
+    hooks:
+      - id: block-sensitive-files
+        name: Block sensitive secret files
+        entry: bash -c 'for f in "$@"; do case "$f" in .env|.env.*|*/.env|*/.env.*|*.key|secrets/*.dec.*|*/secrets/*.dec.*) echo "Refusing to commit sensitive file: $f" >&2; exit 1;; esac; done' --
+        language: system
+        pass_filenames: true
+      - id: gitleaks
+        name: Gitleaks staged secret scan
+        entry: gitleaks git --pre-commit --staged --config .gitleaks.toml --redact
+        language: system
+        pass_filenames: false

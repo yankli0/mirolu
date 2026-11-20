@@ -1,0 +1,316 @@
+version: "2"
+
+run:
+  timeout: 5m
+
+linters:
+  default: standard
+  enable:
+    - depguard
+    - forbidigo
+    - gosec
+    - sloglint
+    - modernize
+    - usetesting
+    - gocritic
+    - misspell
+    - nilerr
+    - errorlint
+    - bodyclose
+    - noctx
+    - unconvert
+    - unparam
+
+  settings:
+    depguard:
+      rules:
+        global-forbidden:
+          files:
+            - "$all"
+          list-mode: lax
+          deny:
+            - pkg: "io/ioutil"
+              desc: "io/ioutil is deprecated; use io or os instead"
+            - pkg: "crypto/md5"
+              desc: "crypto/md5 is forbidden; use crypto/sha256"
+            - pkg: "gopkg.in/yaml.v3"
+              desc: "gopkg.in/yaml.v3 is archived; use go.yaml.in/yaml/v3"
+            - pkg: "github.com/getsops/sops"
+              desc: "direct sops library import is forbidden; wrap the sops CLI"
+            - pkg: "github.com/charmbracelet/lipgloss"
+              desc: "lipgloss v1 is forbidden; use charm.land/lipgloss/v2"
+            - pkg: "github.com/mattn/go-sqlite3"
+              desc: "CGO SQLite is forbidden; use modernc.org/sqlite"
+            - pkg: "github.com/ncruces/go-sqlite3"
+              desc: "ncruces/go-sqlite3 is forbidden; use modernc.org/sqlite"
+            - pkg: "golang.org/x/crypto/ssh/knownhosts"
+              desc: "raw x/crypto/ssh/knownhosts is forbidden; use github.com/skeema/knownhosts"
+
+        core-gostd-only:
+          files:
+            - "**/internal/core/*.go"
+            - "**/internal/core/**/*.go"
+          list-mode: strict
+          allow:
+            - "$gostd"
+            - "github.com/yankli0/mirolu/internal/core"
+
+        modules-pure:
+          files:
+            - "**/internal/modules/*.go"
+            - "**/internal/modules/**/*.go"
+          list-mode: lax
+          deny:
+            - pkg: "os/exec"
+              desc: "internal/modules must stay declarative; os/exec is forbidden"
+            - pkg: "database/sql"
+              desc: "internal/modules must stay declarative; database/sql is forbidden"
+            - pkg: "github.com/yankli0/mirolu/internal/engine"
+              desc: "internal/modules may import only internal/core"
+            - pkg: "github.com/yankli0/mirolu/internal/ledger"
+              desc: "internal/modules may import only internal/core"
+            - pkg: "github.com/yankli0/mirolu/internal/transport"
+              desc: "internal/modules may import only internal/core"
+            - pkg: "github.com/yankli0/mirolu/internal/driver"
+              desc: "internal/modules may import only internal/core"
+            - pkg: "github.com/yankli0/mirolu/internal/secret"
+              desc: "internal/modules may import only internal/core"
+            - pkg: "github.com/yankli0/mirolu/internal/slots"
+              desc: "internal/modules may import only internal/core"
+            - pkg: "github.com/yankli0/mirolu/internal/fleet"
+              desc: "internal/modules may import only internal/core"
+            - pkg: "github.com/yankli0/mirolu/internal/ui"
+              desc: "internal/modules may import only internal/core"
+
+        cmd-boundary:
+          files:
+            - "**/cmd/mirolu/*.go"
+            - "**/cmd/mirolu/**/*.go"
+          list-mode: lax
+          deny:
+            - pkg: "github.com/yankli0/mirolu/internal/transport"
+              desc: "cmd/mirolu may not import internal/transport directly"
+            - pkg: "github.com/yankli0/mirolu/internal/driver"
+              desc: "cmd/mirolu may not import internal/driver directly"
+            - pkg: "github.com/yankli0/mirolu/internal/modules"
+              desc: "cmd/mirolu may not import internal/modules directly"
+            - pkg: "github.com/yankli0/mirolu/internal/slots"
+              desc: "cmd/mirolu may not import internal/slots directly"
+
+        engine-boundary:
+          files:
+            - "**/internal/engine/*.go"
+            - "**/internal/engine/**/*.go"
+          list-mode: lax
+          deny:
+            - pkg: "github.com/yankli0/mirolu/internal/secret"
+              desc: "internal/engine may import only core, transport, driver, ledger"
+            - pkg: "github.com/yankli0/mirolu/internal/modules"
+              desc: "internal/engine may import only core, transport, driver, ledger"
+            - pkg: "github.com/yankli0/mirolu/internal/slots"
+              desc: "internal/engine may import only core, transport, driver, ledger"
+            - pkg: "github.com/yankli0/mirolu/internal/fleet"
+              desc: "internal/engine may import only core, transport, driver, ledger"
+            - pkg: "github.com/yankli0/mirolu/internal/ui"
+              desc: "internal/engine may import only core, transport, driver, ledger"
+
+        ledger-boundary:
+          files:
+            - "**/internal/ledger/*.go"
+            - "**/internal/ledger/**/*.go"
+          list-mode: lax
+          deny:
+            - pkg: "github.com/yankli0/mirolu/internal/engine"
+              desc: "internal/ledger may import only internal/core"
+            - pkg: "github.com/yankli0/mirolu/internal/transport"
+              desc: "internal/ledger may import only internal/core"
+            - pkg: "github.com/yankli0/mirolu/internal/driver"
+              desc: "internal/ledger may import only internal/core"
+            - pkg: "github.com/yankli0/mirolu/internal/secret"
+              desc: "internal/ledger may import only internal/core"
+            - pkg: "github.com/yankli0/mirolu/internal/modules"
+              desc: "internal/ledger may import only internal/core"
+            - pkg: "github.com/yankli0/mirolu/internal/slots"
+              desc: "internal/ledger may import only internal/core"
+            - pkg: "github.com/yankli0/mirolu/internal/fleet"
+              desc: "internal/ledger may import only internal/core"
+            - pkg: "github.com/yankli0/mirolu/internal/ui"
+              desc: "internal/ledger may import only internal/core"
+
+        transport-boundary:
+          files:
+            - "**/internal/transport/*.go"
+            - "**/internal/transport/**/*.go"
+          list-mode: lax
+          deny:
+            - pkg: "github.com/yankli0/mirolu/internal/engine"
+              desc: "internal/transport may import only internal/core"
+            - pkg: "github.com/yankli0/mirolu/internal/ledger"
+              desc: "internal/transport may import only internal/core"
+            - pkg: "github.com/yankli0/mirolu/internal/driver"
+              desc: "internal/transport may import only internal/core"
+            - pkg: "github.com/yankli0/mirolu/internal/secret"
+              desc: "internal/transport may import only internal/core"
+            - pkg: "github.com/yankli0/mirolu/internal/modules"
+              desc: "internal/transport may import only internal/core"
+            - pkg: "github.com/yankli0/mirolu/internal/slots"
+              desc: "internal/transport may import only internal/core"
+            - pkg: "github.com/yankli0/mirolu/internal/fleet"
+              desc: "internal/transport may import only internal/core"
+            - pkg: "github.com/yankli0/mirolu/internal/ui"
+              desc: "internal/transport may import only internal/core"
+
+        driver-boundary:
+          files:
+            - "**/internal/driver/*.go"
+            - "**/internal/driver/**/*.go"
+          list-mode: lax
+          deny:
+            - pkg: "github.com/yankli0/mirolu/internal/engine"
+              desc: "internal/driver may import only core, transport, secret"
+            - pkg: "github.com/yankli0/mirolu/internal/ledger"
+              desc: "internal/driver may import only core, transport, secret"
+            - pkg: "github.com/yankli0/mirolu/internal/modules"
+              desc: "internal/driver may import only core, transport, secret"
+            - pkg: "github.com/yankli0/mirolu/internal/slots"
+              desc: "internal/driver may import only core, transport, secret"
+            - pkg: "github.com/yankli0/mirolu/internal/fleet"
+              desc: "internal/driver may import only core, transport, secret"
+            - pkg: "github.com/yankli0/mirolu/internal/ui"
+              desc: "internal/driver may import only core, transport, secret"
+
+        secret-boundary:
+          files:
+            - "**/internal/secret/*.go"
+            - "**/internal/secret/**/*.go"
+          list-mode: lax
+          deny:
+            - pkg: "github.com/yankli0/mirolu/internal/engine"
+              desc: "internal/secret may import only internal/core"
+            - pkg: "github.com/yankli0/mirolu/internal/ledger"
+              desc: "internal/secret may import only internal/core"
+            - pkg: "github.com/yankli0/mirolu/internal/transport"
+              desc: "internal/secret may import only internal/core"
+            - pkg: "github.com/yankli0/mirolu/internal/driver"
+              desc: "internal/secret may import only internal/core"
+            - pkg: "github.com/yankli0/mirolu/internal/modules"
+              desc: "internal/secret may import only internal/core"
+            - pkg: "github.com/yankli0/mirolu/internal/slots"
+              desc: "internal/secret may import only internal/core"
+            - pkg: "github.com/yankli0/mirolu/internal/fleet"
+              desc: "internal/secret may import only internal/core"
+            - pkg: "github.com/yankli0/mirolu/internal/ui"
+              desc: "internal/secret may import only internal/core"
+
+        slots-boundary:
+          files:
+            - "**/internal/slots/*.go"
+            - "**/internal/slots/**/*.go"
+          list-mode: lax
+          deny:
+            - pkg: "github.com/yankli0/mirolu/internal/engine"
+              desc: "internal/slots may import only core and modules"
+            - pkg: "github.com/yankli0/mirolu/internal/ledger"
+              desc: "internal/slots may import only core and modules"
+            - pkg: "github.com/yankli0/mirolu/internal/transport"
+              desc: "internal/slots may import only core and modules"
+            - pkg: "github.com/yankli0/mirolu/internal/driver"
+              desc: "internal/slots may import only core and modules"
+            - pkg: "github.com/yankli0/mirolu/internal/secret"
+              desc: "internal/slots may import only core and modules"
+            - pkg: "github.com/yankli0/mirolu/internal/fleet"
+              desc: "internal/slots may import only core and modules"
+            - pkg: "github.com/yankli0/mirolu/internal/ui"
+              desc: "internal/slots may import only core and modules"
+
+        fleet-boundary:
+          files:
+            - "**/internal/fleet/*.go"
+            - "**/internal/fleet/**/*.go"
+          list-mode: lax
+          deny:
+            - pkg: "github.com/yankli0/mirolu/internal/engine"
+              desc: "internal/fleet may import only core, modules, slots"
+            - pkg: "github.com/yankli0/mirolu/internal/ledger"
+              desc: "internal/fleet may import only core, modules, slots"
+            - pkg: "github.com/yankli0/mirolu/internal/transport"
+              desc: "internal/fleet may import only core, modules, slots"
+            - pkg: "github.com/yankli0/mirolu/internal/driver"
+              desc: "internal/fleet may import only core, modules, slots"
+            - pkg: "github.com/yankli0/mirolu/internal/secret"
+              desc: "internal/fleet may import only core, modules, slots"
+            - pkg: "github.com/yankli0/mirolu/internal/ui"
+              desc: "internal/fleet may import only core, modules, slots"
+
+        ui-boundary:
+          files:
+            - "**/internal/ui/*.go"
+            - "**/internal/ui/**/*.go"
+          list-mode: lax
+          deny:
+            - pkg: "github.com/yankli0/mirolu/internal/engine"
+              desc: "internal/ui may import only internal/core"
+            - pkg: "github.com/yankli0/mirolu/internal/ledger"
+              desc: "internal/ui may import only internal/core"
+            - pkg: "github.com/yankli0/mirolu/internal/transport"
+              desc: "internal/ui may import only internal/core"
+            - pkg: "github.com/yankli0/mirolu/internal/driver"
+              desc: "internal/ui may import only internal/core"
+            - pkg: "github.com/yankli0/mirolu/internal/secret"
+              desc: "internal/ui may import only internal/core"
+            - pkg: "github.com/yankli0/mirolu/internal/modules"
+              desc: "internal/ui may import only internal/core"
+            - pkg: "github.com/yankli0/mirolu/internal/slots"
+              desc: "internal/ui may import only internal/core"
+            - pkg: "github.com/yankli0/mirolu/internal/fleet"
+              desc: "internal/ui may import only internal/core"
+
+    forbidigo:
+      analyze-types: true
+      exclude-godoc-examples: true
+      forbid:
+        - pattern: '^fmt\.Print(f|ln)?$'
+          pkg: '^fmt$'
+          msg: "avoid fmt.Print* outside CLI/UI; use log/slog or an explicit io.Writer"
+        - pattern: '^print(ln)?$'
+          msg: "do not use built-in print/println"
+        - pattern: '^http\.DefaultClient$'
+          pkg: '^net/http$'
+          msg: "avoid http.DefaultClient; construct an http.Client with explicit timeouts"
+        - pattern: '^ssh\.InsecureIgnoreHostKey$'
+          pkg: '^golang\.org/x/crypto/ssh$'
+          msg: "ssh.InsecureIgnoreHostKey is forbidden; use github.com/skeema/knownhosts"
+
+    sloglint:
+      no-global: "all"
+      context: "scope"
+      static-msg: true
+      key-naming-case: "snake"
+
+    usetesting:
+      os-create-temp: true
+      os-mkdir-temp: true
+      os-temp-dir: true
+      os-chdir: true
+      context-background: true
+      context-todo: true
+
+  exclusions:
+    generated: lax
+    presets:
+      - std-error-handling
+      - common-false-positives
+    rules:
+      - path: '^(cmd/mirolu|internal/ui)/'
+        linters:
+          - forbidigo
+        text: 'fmt\.Print'
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/yankli0/mirolu

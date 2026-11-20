@@ -1,0 +1,27 @@
+# Build outputs & test artifacts
+/bin/
+/mirolu
+*.test
+*.out
+coverage.*
+
+# Local state databases
+*.db
+*.db-wal
+*.db-shm
+
+# Plaintext secrets (defense in depth)
+.env
+.env.*
+*.key
+*.pem
+*.age.key
+secrets/*.dec.*
+*.dec.*
+
+# OS & editor scratch files
+.DS_Store
+*.swp
+*.swo
+*~
+.idea/

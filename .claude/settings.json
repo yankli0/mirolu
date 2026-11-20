@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "deny": [
+      "Read(.env)",
+      "Read(.env.*)",
+      "Read(**/.env)",
+      "Read(**/.env.*)",
+      "Read(*.key)",
+      "Read(**/*.key)",
+      "Read(secrets/*.dec.*)",
+      "Read(**/secrets/*.dec.*)",
+      "Read(~/.ssh/**)",
+      "Edit(.env)",
+      "Edit(.env.*)",
+      "Edit(**/.env)",
+      "Edit(**/.env.*)",
+      "Edit(*.key)",
+      "Edit(**/*.key)",
+      "Edit(secrets/*.dec.*)",
+      "Edit(**/secrets/*.dec.*)",
+      "Edit(~/.ssh/**)",
+      "Write(.env)",
+      "Write(.env.*)",
+      "Write(**/.env)",
+      "Write(**/.env.*)",
+      "Write(*.key)",
+      "Write(**/*.key)",
+      "Write(secrets/*.dec.*)",
+      "Write(**/secrets/*.dec.*)",
+      "Write(~/.ssh/**)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Read|Edit|Write|Bash|Glob|Grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/block-sensitive-paths.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

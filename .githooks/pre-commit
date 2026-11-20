@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(git rev-parse --show-toplevel)"
+cd "$repo_root"
+
+while IFS= read -r -d '' file; do
+  case "$file" in
+    .env|.env.*|*/.env|*/.env.*|*.key|secrets/*.dec.*|*/secrets/*.dec.*)
+      echo "pre-commit: refusing to commit sensitive file: $file" >&2
+      exit 1
+      ;;
+  esac
+done < <(git diff --cached --name-only --diff-filter=ACM -z)
+
+if command -v gitleaks >/dev/null 2>&1; then
+  exec gitleaks git --pre-commit --staged --config .gitleaks.toml --redact .
+elif command -v mise >/dev/null 2>&1; then
+  exec mise exec -- gitleaks git --pre-commit --staged --config .gitleaks.toml --redact .
+elif [[ -x "${HOME}/.local/bin/mise" ]]; then
+  exec "${HOME}/.local/bin/mise" exec -- gitleaks git --pre-commit --staged --config .gitleaks.toml --redact .
+elif [[ -x "${HOME}/.local/share/mise/shims/gitleaks" ]]; then
+  exec "${HOME}/.local/share/mise/shims/gitleaks" git --pre-commit --staged --config .gitleaks.toml --redact .
+else
+  echo "pre-commit: gitleaks is required but not found in PATH or mise" >&2
+  exit 1
+fi
