@@ -27,8 +27,9 @@ Import boundaries are enforced in `.golangci.yml` via `depguard` and `forbidigo`
 
 ## 3. Working Cadence & Plan Discipline
 
-- Work strictly one small atomic sub-step at a time following [docs/plan/STAGES.md](docs/plan/STAGES.md).
-- Pause and ask the user at every taste checkpoint (`T-01`–`T-09`) or open decision slot (`DEC-01`–`DEC-05`) documented in [docs/plan/DECISIONS.md](docs/plan/DECISIONS.md); never guess user preferences.
+- **Minimum Proof-of-Concept first**: Build only the minimal, essential functionality needed for the current sub-step. Do **not** over-engineer, add speculative fields/helpers/enums, or implement full-blown functionality prematurely.
+- **Interactive pace — never rush a whole stage**: Work strictly **one small atomic sub-step at a time** following [docs/plan/STAGES.md](docs/plan/STAGES.md), and **pause for user confirmation/feedback** before advancing to the next sub-step.
+- **Surface misalignments & taste decisions early**: Before implementing a sub-step, check if anything in the plan/docs looks obsolete, redundant, or misaligned, and pause to ask the user—alongside every taste checkpoint (`T-01`–`T-09`) or open decision slot (`DEC-01`–`DEC-05`) in [docs/plan/DECISIONS.md](docs/plan/DECISIONS.md). Never guess user preferences.
 - Never advance from Stage N to Stage N+1 until every Definition of Done check for Stage N exits `0`.
 - Defer all legacy config migration from `../dot_uchi/archive_v2` and `../dot_uchi/archive` strictly until **Stage 10**.
 - **Branch per stage & keep `docs/` local for now**: develop each stage on a dedicated branch off `main` named `stages/<N>-<slug>` (e.g. `stages/0-scaffold`, `stages/1-core-dag`); never commit stage work directly to `main`. Keep `docs/` excluded from git commits for now (locally ignored via `.git/info/exclude`).
